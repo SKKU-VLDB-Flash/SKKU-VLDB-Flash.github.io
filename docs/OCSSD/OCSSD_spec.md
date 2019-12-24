@@ -83,6 +83,8 @@ struct ppa_addr{
 }
 {% endhighlight %}
 
+주소 체계에 차이가 있기 때문에 [pblk.h](https://github.com/OpenChannelSSD/linux/blob/master/drivers/lightnvm/pblk.h) 의 `addr_to_gen_ppa` 함수를 보면 `NVM_OCSSD_SPEC` 을 확인하고 이에 따라 다르게 주소를 생성한다. 
+
 <small>[OCSSD 2.0 문서](http://lightnvm.io/docs/OCSSD-2_0-20180129.pdf)에 기재된 chunk model 은 기존 펌웨어에서 block model 과 비슷하므로 생략한다.</small>
 
 ## Physical Page Address Command Set
@@ -100,6 +102,21 @@ struct ppa_addr{
 | F1h          | Set Bad Block Table   | 
 | F2h          | Get Bad Block Table   |
 
+OCSSD version 2.0 에서는 다른 Admin Command 를 제공한다.
+
+| NVMe Opcode  | Command               | 
+|:-------------|:----------------------|
+| E2h          | Geometry	       | 
+| 02h          | Get Log Page - Chunk Info | 
+| 09h          | Get Features - Media Feedback |
+| 0Ah	       | Get Features - Media Feedback |
+
+Geometry 는 1.2 버전에서 E2h 와 같은 역할을 한다. 다만 리눅스 소스코드를 참조하면 일부 NAND friendly 정보들은 포함되지 않는다.
+
+Chunk Info 는 디바이스의 모든 chunk 에 대해서 chuck 별 설명을 제공한다. 이와 관련하여 [lightnvm 헤더파일](https://github.com/OpenChannelSSD/linux/blob/master/include/linux/lightnvm.h) 에 chunk 관련 stat, type 에 대한 enum value 를 가지고 있다.
+
+pblk 의 nvm_get_chunk_meta 함수에 따르면 OCSSD 버전 1.2 에서는 해당 함수가 콜 되었을 때 `nvm_get_bb_meta` 함수 (배드 블록 정보 받아옴) 를 2.0 에서는 `get_chk_meta` 함수를 콜하는 것을 확인할 수 있다.
+
 
 #### Device Identification
 
@@ -107,10 +124,10 @@ Command complete 시에 SSD geometry 정보를 받아온다. 해당 geometry 정
 
 #### Bad Block Admin Command
 
-Bad Block 관련 admin command 는 2.0 스펙에는 명시되어 있지 않다. 리눅스 5.3 기준으로 pblk target initialize 하는 시점에 get bad block table 명령을 통해 bad block table 정보를 받아온다. 
+Bad Block 관련 admin command 는 2.0 스펙에는 명시되어 있지 않다. 리눅스 5.3 기준으로 pblk target initialize 하는 시점에 OCSSD Version 을 체크하고 1.2 버전인 경우 get bad block table 명령을 통해 bad block table 정보를 받아온다. (2.0 버전인 경우에는 따로 받아오지 않는다.)
+
 
 ### IO Commands
-
 
 | NVMe Opcode  | Command                         | 
 |:-------------|:--------------------------------|
@@ -120,8 +137,10 @@ Bad Block 관련 admin command 는 2.0 스펙에는 명시되어 있지 않다. 
 | 95h          | Physical Page Address Raw Write (Optional)| 
 | 96h          | Physical Page Address Raw Read (Optional)| 
 
-<small>OCSSD 2.0 에는 93h 에 copy 명령도 추가되어 있다.</small>
 
+OCSSD 2.0 버전 스펙을 확인하며 90 ~ 92 까지의 IO command 가 vector command 로 명시되어 있다. Scatter-Gather LBA 를 활용한다. 
+
+<small>OCSSD 2.0 에는 93h 에 copy 명령도 추가되어 있다. (optional)</small>
 
 
 ---
