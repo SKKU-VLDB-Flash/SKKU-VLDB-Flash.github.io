@@ -37,12 +37,12 @@ OCSSD 에서는 호스트가 직접 I/O 커맨드를 언제, 어디에 그리고
 OCSSD PPA 명령 셋을 지원하는 디바이스 드라이버로 PPA 명령 셋에 대해서는 아래에서 설명하겠다.
 
 #### Media Manger 
-미디어 매니저는 유저와 물리장치 사이의 중개자 역할을 한다. LightNVM 의 미디어 매니저는 최소한의 블 관리를 담당하며 타켓이나 유저로 하여금 실제 FTL 과 같이 동작할 수 있도록 한다. 따라서 미디어 매니저는 데이터의 위치 선정, 가비지 콜렉션, 블록 관리 등을 담당한다. OCSSD 2.0 버전으로 가면서 SSD 중심의 일부 기능들이 제거되어 [lightnvm.h](https://github.com/OpenChannelSSD/linux/blob/master/include/linux/lightnvm.h) 의 Geometry 구조체에서 미디어 타입과 밀접한 연관이 있는 부분들은 backward compatibility 를 위해서만 남아있다.
+미디어 매니저는 유저와 물리장치 사이의 중개자 역할을 한다. LightNVM 의 미디어 매니저는 최소한의 블록 관리를 담당하며 타켓이나 유저로 하여금 실제 FTL 과 같이 동작할 수 있도록 한다. 따라서 미디어 매니저는 데이터의 위치 선정, 가비지 콜렉션, 블록 관리 등을 담당한다. OCSSD 2.0 버전으로 가면서 SSD 중심의 일부 기능들이 제거되어 [lightnvm.h](https://github.com/OpenChannelSSD/linux/blob/master/include/linux/lightnvm.h) 의 Geometry 구조체에서 미디어 타입과 밀접한 연관이 있는 부분들은 backward compatibility 를 위해서만 남아있다.
 
 #### Target
 General 미디어 매니저를 사용하는 경우 target 은 FTL 기능을 제공한다. 뿐만 아니라 유저 스페이스와 소통할 수 있는 인터페이스도 제공한다. (e.g., [pblk](https://github.com/OpenChannelSSD/linux/tree/master/drivers/lightnvm))
 
-뿐만 아니라 LightNVM 은 유저스페이스 라이브러리인 [liblightnvm](https://github.com/OpenChannelSSD/liblightnvm) 을 통해서 응용 레벨에서 FTL 을 관리하는 응용이 get/put 블록 인터페이스를 제공하기도 한다.
+뿐만 아니라 LightNVM 은 유저스페이스 라이브러리인 [liblightnvm](https://github.com/OpenChannelSSD/liblightnvm) 을 통해서 응용 레벨에서 FTL 을 관리하는 응용이 사용할 수 있는 get/put 블록 인터페이스를 제공하기도 한다.
 
 
 ### Open-Channel SSD Representation 
